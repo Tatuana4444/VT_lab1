@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"controller"},{"l":"model"},{"l":"view"}]
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"controller"},{"l":"model.bean"},{"l":"model.dao"},{"l":"model.dao.exception"},{"l":"model.dao.factory"},{"l":"model.dao.impl"},{"l":"model.service"},{"l":"model.service.exception"},{"l":"view"}]

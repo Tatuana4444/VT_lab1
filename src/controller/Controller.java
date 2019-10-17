@@ -4,8 +4,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import model.bean.*;
+import model.service.*;
+import model.service.exception.ServiceException;
 import  view.View;
-import model.*;
 
 /**
  *Interprets user actions and alerts the model about changes
@@ -19,7 +22,7 @@ public class Controller {
     /**
      * site with which user works
      */
-    private Site site = new Site();
+    private Site site;
 
     /**
      * Here method than hashes password
@@ -27,7 +30,7 @@ public class Controller {
      * @return hash of user password
      * @throws NoSuchAlgorithmException if MD5 absents
      */
-    private String EncryptMD5(String password) throws NoSuchAlgorithmException {
+    private String encryptMD5(String password) throws NoSuchAlgorithmException {
         MessageDigest md5 = MessageDigest.getInstance("MD5");
         byte[] bytes=md5.digest(password.getBytes());
         StringBuilder builder = new StringBuilder();
@@ -47,49 +50,63 @@ public class Controller {
      * @throws NoSuchAlgorithmException if MD5 absents
      */
     private boolean checkAnswer(int answer,String login, String password, Scanner in, Guest guest) throws NoSuchAlgorithmException {
-        if (answer==1){
-            if (guest.Authorization("buyer", login, EncryptMD5(password))) {
-                Buyer buyer = new Buyer();
+        try{
+            GuestManager guestManager = new GuestManager();
+            if (answer == 1) {
+                if (guestManager.authorization(guest, "buyer", login, encryptMD5(password))) {
+                    Buyer buyer = new Buyer();
+                    buyer.setUserName(login);
+                    controllerBuyer(site, buyer);
+                    return true;
+                }
+
+            }
+            if (answer == 2) {
+                if (guestManager.authorization(guest, "admin", login, password)) {
+                    controllerAdmin(site);
+                    return true;
+                }
+            }
+            if (answer == 3) {
+                String repeatPassword;
+                view.viewRepeatPassQuest();
+                repeatPassword = in.next();
+                while (!password.equals(repeatPassword)) {
+                    view.viewException();
+                    view.viewRepeatPassQuest();
+                    repeatPassword = in.next();
+                }
+                if (!guestManager.registration(guest, login, encryptMD5(password))) {
+                    view.viewChangeLogin();
+                    return false;
+                }
+                Buyer buyer = new Buyer();//+создание файла покупателя
                 buyer.setUserName(login);
                 controllerBuyer(site, buyer);
                 return true;
             }
+        }catch (ServiceException ex){
+            view.viewRunException();
+        }
+            return false;
 
-        }
-        if (answer==2){
-            if (guest.Authorization("admin", login, password)){
-                controllerAdmin(site);
-                return true;
-            }
-        }
-        if (answer==3){
-            String repeatPassword;
-            view.viewRepeatPassQuest();
-            repeatPassword = in.next();
-            while (!password.equals(repeatPassword)){
-                view.viewException();
-                view.viewRepeatPassQuest();
-                repeatPassword = in.next();
-            }
-            if (!guest.Registration(login, EncryptMD5(password))){
-                view.viewChangeLogin();
-                return  false;
-            }
-            Buyer buyer = new Buyer();//+создание файла покупателя
-            buyer.setUserName(login);
-            controllerBuyer(site, buyer);
-            return true;
-        }
-        return  false;
+
     }
 
 
     /**
-     * Fist controller which initialize client
+     * Fist controller which initializes client
      * @throws NoSuchAlgorithmException if MD5 absents
      */
     public void controllerWelcome() throws NoSuchAlgorithmException {
         Guest guest = new Guest();
+        try {
+            site = new Site();
+        }catch (ServiceException ex){
+            view.viewRunException();
+            System.exit(1);
+        }
+
         int answer;
         Scanner in = new Scanner(System.in);
         view.viewWelcome("User"+guest.getId());
@@ -149,11 +166,11 @@ public class Controller {
         }catch (NumberFormatException e) {
             answer = 0;
         }
-
+        BuyerManger buyerManger = new BuyerManger(buyer);
         while (answer!=10){
             switch (answer){
                 case 1:
-                    list =site.getListProducts();
+                    list = site.getListProducts();
                     view.viewProductList(list);
                     break;
                 case 2:
@@ -163,7 +180,8 @@ public class Controller {
                     break;
                 case 3:
                     list =site.getListProducts();
-                    list.sort(Product::compareByPrice);
+                    ProductManager productManager = new ProductManager();
+                    list.sort(productManager::compareByPrice);
                     view.viewProductList(list);
                     break;
                 case 4:
@@ -180,18 +198,28 @@ public class Controller {
                         view.viewException();
                         break;
                     }
-                    if (buyer.addToBasket(site, name, count))
-                        view.viewSuccess();
-                    else
-                        view.viewException();
+                    try {
+                        if (buyerManger.addToBasket(site, name, count))
+                            view.viewSuccess();
+                        else
+                            view.viewException();
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 case 6:
                     view.viewNameQuest();
                     name = in.next();
-                    if (buyer.deleteFromBasket(name))
-                        view.viewSuccess();
-                    else
-                        view.viewException();
+                    try {
+                        if (buyerManger.deleteFromBasket(name))
+                            view.viewSuccess();
+                        else
+                            view.viewException();
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 case 7:
                     view.viewNameQuest();
@@ -203,15 +231,21 @@ public class Controller {
                        view.viewException();
                         break;
                     }
-                    if ( buyer.changeCount(site, name, count))
-                        view.viewSuccess();
-                    else
-                        view.viewNotEnough();
+                    try {
+                        if ( buyerManger.changeCount(site, name, count))
+                            view.viewSuccess();
+                        else
+                            view.viewNotEnough();
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 case 8:
                     view.viewNameQuest();
                     name = in.next();
-                    int index = site.findByName(name);
+                    SiteManager siteManager = new SiteManager(site);
+                    int index = siteManager.findByName(name);
                     if (index>0){
                         Product product = site.getListProducts().get(index);
                         view.viewProduct(product);
@@ -222,23 +256,28 @@ public class Controller {
                 case 9:
                     view.viewNameQuest();
                     name = in.next();
-                    switch (buyer.buyProduct(site, name)){
-                        case 0:
-                            view.viewSuccess();
-                        break;
-                        case 1:
-                            view.viewNoInBasket();
-                        break;
-                        case 2:
-                            view.viewNoOnSite();
-                            break;
-                        case 3:
-                            view.viewNotEnough();
-                            break;
-                        case 4:
-                            view.viewDescriptionChanged();
-                            break;
-                }
+                    try {
+                        switch (buyerManger.buyProduct(site, name)){
+                            case 0:
+                                view.viewSuccess();
+                                break;
+                            case 1:
+                                view.viewNoInBasket();
+                                break;
+                            case 2:
+                                view.viewNoOnSite();
+                                break;
+                            case 3:
+                                view.viewNotEnough();
+                                break;
+                            case 4:
+                                view.viewDescriptionChanged();
+                                break;
+                        }
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 default:
                     view.viewException();
@@ -272,7 +311,7 @@ public class Controller {
         }catch (NumberFormatException e) {
             answer = 0;
         }
-
+        AdminManager adminManager = new AdminManager(admin);
         while (answer != 9){
             switch (answer){
                 case 1:
@@ -298,19 +337,28 @@ public class Controller {
                         view.viewException();
                         break;
                     }
-
-                    if (admin.addProductToSite(site,name,description,count,price))
-                        view.viewSuccess();
-                    else
-                        view.viewException();
+                    try {
+                        if (adminManager.addProductToSite(name,description,count,price))
+                            view.viewSuccess();
+                        else
+                            view.viewException();
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 case 3:
                     view.viewNameQuest();
                     name = in.next();
-                    if (admin.deleteProduct(site, name))
-                        view.viewSuccess();
-                    else
-                        view.viewException();
+                    try {
+                        if (adminManager.deleteProduct(name))
+                            view.viewSuccess();
+                        else
+                            view.viewException();
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 case 5:
                     view.viewNameQuest();
@@ -322,30 +370,45 @@ public class Controller {
                         view.viewException();
                         break;
                     }
-                    if ( Admin.changeProductCount(site, name, count))
-                        view.viewSuccess();
-                    else
-                        view.viewException();
+                    try {
+                        if ( adminManager.changeProductCount(name, count))
+                            view.viewSuccess();
+                        else
+                            view.viewException();
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 case 4:
                     view.viewNameQuest();
                     name = in.next();
                     view.viewNewNameQuest();
                     String newName = in.next();
-                    if (admin.changeProductName(site, name, newName))
-                        view.viewSuccess();
-                    else
-                        view.viewException();
+                    try {
+                        if (adminManager.changeProductName(name, newName))
+                            view.viewSuccess();
+                        else
+                            view.viewException();
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 case 6:
                     view.viewNameQuest();
                     name = in.next();
                     view.viewDescriptionQuest();
                     description = in.next();
-                    if (admin.changeDescription(site, name, description))
-                        view.viewSuccess();
-                    else
-                        view.viewException();
+                    try {
+                        if (adminManager.changeDescription(name, description))
+                            view.viewSuccess();
+                        else
+                            view.viewException();
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 case 7:
                     view.viewNameQuest();
@@ -357,16 +420,21 @@ public class Controller {
                         view.viewException();
                         break;
                     }
-
-                    if (admin.changePrice(site, name, price))
-                        view.viewSuccess();
-                    else
-                        view.viewException();
+                    try {
+                        if (adminManager.changePrice(name, price))
+                            view.viewSuccess();
+                        else
+                            view.viewException();
+                    }catch (ServiceException ex){
+                        view.viewRunException();
+                        System.exit(1);
+                    }
                     break;
                 case 8:
                     view.viewNameQuest();
                     name = in.next();
-                    int index = site.findByName(name);
+                    SiteManager siteManager = new SiteManager(site);
+                    int index = siteManager.findByName(name);
                     if (index>0){
                         Product product = site.getListProducts().get(index);
                         view.viewProduct(product);
@@ -379,7 +447,6 @@ public class Controller {
                     break;
             }
             view.viewAdminInfo();
-
             try {
                 answer = Integer.parseInt(in.next());
             }catch (NumberFormatException e) {

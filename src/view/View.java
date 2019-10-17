@@ -1,7 +1,7 @@
 package view;
 
 
-import model.Product;
+import model.bean.Product;
 
 import java.util.ArrayList;
 
@@ -19,7 +19,7 @@ public class View {
     }
 
     /**
-     * Here method that prompt user to register or authorize
+     * Here method that prompts user to register or authorize
      */
     public void viewGuestInfo(){
         System.out.println("Нажмите 1, чтобы войти как покупатель");
@@ -29,21 +29,21 @@ public class View {
     }
 
     /**
-     * Here method that ask user about his login and password
+     * Here method that asks user about his login and password
      */
     public void viewLoginAndPassQuest(){
         System.out.println("Введите логин и пароль");
     }
 
     /**
-     * Here method that ask user to repeat his password
+     * Here method that asks user to repeat his password
      */
     public void viewRepeatPassQuest(){
         System.out.println("Повторите пароль");
     }
 
     /**
-     *Here method that describe all functions of customer
+     *Here method that describes all functions of customer
      */
     public void viewBuyerInfo(){
         System.out.println("Нажмите 1, чтобы увидеть список товаров сайта(по дате добавления)");
@@ -172,7 +172,7 @@ public class View {
     }
 
     /**
-     *Here method that describe all functions of customer
+     *Here method that describes all functions of customer
      */
     public void viewAdminInfo(){
         System.out.println("Нажмите 1, чтобы увидеть список товаров сайта(по дате добавления)");
@@ -186,5 +186,11 @@ public class View {
         System.out.println("Нажмите 9, чтобы выйти из системы");
     }
 
+    /**
+     * Here method that says about runtime error
+     */
+    public void viewRunException(){
+        System.out.print("Ошибка во время выполнения. ");
+    }
 
 }

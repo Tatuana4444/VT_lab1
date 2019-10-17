@@ -1,4 +1,10 @@
 unnamed package
 controller
-model
+model.bean
+model.dao
+model.dao.exception
+model.dao.factory
+model.dao.impl
+model.service
+model.service.exception
 view
