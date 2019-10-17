@@ -94,7 +94,7 @@
       <workItem from="1570577660905" duration="492000" />
       <workItem from="1570652342828" duration="3051000" />
       <workItem from="1571249573020" duration="14812000" />
-      <workItem from="1571297185280" duration="7829000" />
+      <workItem from="1571297185280" duration="8683000" />
     </task>
     <servers />
   </component>
@@ -109,26 +109,10 @@
           <line>60</line>
           <option name="timeStamp" value="20" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/model/service/GuestManager.java</url>
-          <line>65</line>
-          <option name="timeStamp" value="50" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/model/service/GuestManager.java</url>
-          <line>66</line>
-          <option name="timeStamp" value="51" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/model/service/GuestManager.java</url>
-          <line>64</line>
-          <option name="timeStamp" value="52" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
-        <watch expression="str" />
         <watch expression="loginPass" />
       </configuration>
     </watches-manager>
