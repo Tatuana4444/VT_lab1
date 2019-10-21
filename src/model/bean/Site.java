@@ -1,6 +1,5 @@
 package model.bean;
 
-import model.bean.Product;
 import model.dao.ProductDAO;
 import model.dao.exception.DAOException;
 import model.dao.factory.DAOFactory;
@@ -41,5 +40,45 @@ public class Site  implements Serializable {
     public ArrayList<Product> getListProducts() {
 
         return listProducts;
+    }
+
+    /**
+     * Compare object with this site
+     * @param obj object with which it will be compare
+     * @return it will return true if objects are equal
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Site site = (Site) obj;
+        if (listProducts.size()!=site.getListProducts().size())
+            return  false;
+        for (int i=0; i<listProducts.size(); i++) {
+            if (!listProducts.get(i).equals(site.listProducts.get(i)))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Do hash code
+     * @return hash code of site
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    /**
+     * Do string from object
+     * @return information about this site
+     */
+    @Override
+    public String toString() {
+        return "Сайт";
     }
 }

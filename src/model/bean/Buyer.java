@@ -67,5 +67,44 @@ public class Buyer  implements Serializable{
     }
 
 
+    /**
+     * Compare object with this buyer
+     * @param obj object with which it will be compare
+     * @return it will return true if objects are equal
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Buyer buyer = (Buyer) obj;
+        if (Basket.size()!=buyer.getBasket().size())
+            return  false;
+        for (int i=0; i<Basket.size(); i++) {
+            if (!Basket.get(i).equals(buyer.getBasket().get(i)))
+                return false;
+        }
+        return userName.equals(buyer.getUserName());
+    }
+
+    /**
+     * Do hash code
+     * @return hash code of buyer
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    /**
+     * Do string from object
+     * @return information about this buyer
+     */
+    @Override
+    public String toString() {
+        return "Покупатель " + userName;
+    }
 
 }

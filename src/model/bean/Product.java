@@ -105,4 +105,38 @@ public class Product implements Serializable, Comparable<Product>  {
         return name.compareTo(prod.getName());
     }
 
+    /**
+     * Compare object with this product
+     * @param obj object with which it will be compare
+     * @return it will return true if objects are equal
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Product product = (Product) obj;
+        return (count==product.getCount())&&(description.equals(product.getDescription()))
+                &&(name.equals(product.getName()))&& (price==product.getPrice());
+    }
+
+    /**
+     * Do hash code
+     * @return hash code of product
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    /**
+     * Do string from object
+     * @return information about this product
+     */
+    @Override
+    public String toString() {
+        return "Продукт: " + name + "\r\nОписание: " + description + "\r\nЦена: " + price + "\r\nКоличество: " + count;
+    }
 }

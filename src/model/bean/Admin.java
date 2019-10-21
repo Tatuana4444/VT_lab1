@@ -31,4 +31,39 @@ public class Admin  implements Serializable {
     public void setSite(Site site) {
         this.site = site;
     }
+
+
+    /**
+     * Compare object with this admin
+     * @param obj object with which it will be compare
+     * @return it will return true if objects are equal
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Admin admin = (Admin)obj;
+        return site==admin.getSite();
+    }
+
+    /**
+     * Do hash code
+     * @return hash code of admin
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    /**
+     * Do string from object
+     * @return information about this admin
+     */
+    @Override
+    public String toString() {
+        return "Администратор сайта";
+    }
 }
